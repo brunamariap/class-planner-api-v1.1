@@ -16,8 +16,8 @@ class PersonManager(BaseUserManager):
 
 class Person(AbstractUser):
     registration = models.CharField(max_length=14, unique=True)
-    name = models.CharField(max_length=200)
-    avatar = models.CharField(max_length=200, null=True)
+    name = models.TextField(max_length=200)
+    avatar = models.TextField(max_length=500, null=True)
     department = models.CharField(max_length=30)
     email = models.EmailField(max_length=254)
     is_active = models.BooleanField('active', default=True)

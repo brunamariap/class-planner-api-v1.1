@@ -16,6 +16,7 @@ from teacher.api.viewsets import TeacherViewSet, TeacherClassesViewSet, TeacherD
 
 from student.api.viewsets import StudentViewSet, StudentAlertViewSet
 from person.api.viewsets import RegisterUserAPIView
+from person.views import SuapAPIAuth
 
 router = routers.SimpleRouter()
 
@@ -51,7 +52,10 @@ urlpatterns = [
         'api/teachers/<int:teacher>/classes/',
         TeacherClassesViewSet.as_view()
     ),
+
+    # Auth
     path('api/users/register/', RegisterUserAPIView.as_view(), name='register'),
+    # path('api/users/login/', RegisterUserAPIView.as_view(), name='register'),
 
     # Swagger docs
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -62,11 +66,16 @@ urlpatterns = [
         name='redoc'
     ),
 
-    # Token
+    # Tokens
+    # path(
+    #     'api/token/',
+    #     TokenObtainPairView.as_view(),
+    #     name='token_obtain_pair'
+    # ),
     path(
         'api/token/',
-        TokenObtainPairView.as_view(),
-        name='token_obtain_pair'
+        SuapAPIAuth.as_view(),
+        name='token_obtain_pair',
     ),
     path(
         'api/token/refresh/',
