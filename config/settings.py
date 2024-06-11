@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import environ
+from datetime import timedelta
 
 
 env = environ.Env()
@@ -136,6 +137,20 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+SIMPLE_JWT = {
+    # Não é bom deixar muito tempo, é bom ser 5 ou 10 min
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    # "UPDATE_LAST_LOGIN": False,
+
+    # "ALGORITHM": "HS256",
+    "SIGNING_KEY": env('SECRET_KEY_JWT'),
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
 
 
 # Internationalization
