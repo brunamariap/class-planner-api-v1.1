@@ -15,7 +15,6 @@ from course.api.viewsets import CourseViewSet, ClassViewSet, DisciplineViewSet, 
 from teacher.api.viewsets import TeacherViewSet, TeacherClassesViewSet, TeacherDisciplinesViewSet, TeacherBindingViewSet
 
 from student.api.viewsets import StudentViewSet, StudentAlertViewSet
-from person.api.viewsets import RegisterUserAPIView
 from person.views import SuapAPIAuth
 
 router = routers.SimpleRouter()
@@ -54,7 +53,6 @@ urlpatterns = [
     ),
 
     # Auth
-    path('api/users/register/', RegisterUserAPIView.as_view(), name='register'),
     # path('api/users/login/', RegisterUserAPIView.as_view(), name='register'),
 
     # Swagger docs
@@ -65,6 +63,8 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name='schema'),
         name='redoc'
     ),
+
+    # Criar rota para pegar as informações do usuário logado
 
     # Tokens
     # path(

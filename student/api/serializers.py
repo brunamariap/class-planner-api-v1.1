@@ -2,6 +2,10 @@ from rest_framework import serializers
 from course.api.serializers import DisciplineSerializer, TeacherSerializer, ClassSerializer, StudentClassSerializer
 from course.models import Discipline, CourseDiscipline, Teach, Teacher, Class
 from ..models import Student, StudentAlert
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -52,7 +56,7 @@ class StudentAlertSerializer(serializers.ModelSerializer):
     
     def show_teacher(self, instance):
         try:
-            teacher = Teacher.objects.get(id=instance.teacher_id.id)
+            teacher = User.objects.get(id=instance.teacher_id.id)
             serializer = TeacherSerializer(teacher)
             
             return serializer.data

@@ -1,22 +1,32 @@
-from rest_framework import generics
 from django.contrib.auth import get_user_model
 
-from .serializers import RegisterUserSerializer
-from utils.suap_api import SuapAPI
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.decorators import action
 
+from .serializers import UserSerializer
 
 User = get_user_model()
 
 
-class RegisterUserAPIView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = RegisterUserSerializer
+class AuthorViewset(ReadOnlyModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
-        print(request)
-        registration = request.data['registration']
-        password = request.data['password']
+    def get_queryset(self):
+        User = get_user_model()
+        # Retorna apenas o usuário logado
+        queryset = User.objects.filter(
+            registration=self.request.user.registration)
+        return queryset
 
-        # suap_api = SuapAPI()
-        # user_data = suap_api.authenticate(registration, password)
-        return super().create(request, *args, **kwargs)
+    @action(methods=['get'], detail=False)
+    def me(self, request, *args, **kwargs):
+        # Como eu estou tentando pegar o usuário logado, não tem como usar o get_object
+        obj = self.get_queryset().first()
+        serializer = self.get_serializer(
+            instance=obj
+        )
+
+        return Response(serializer.data)

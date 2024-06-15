@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
+from django.contrib.auth import get_user_model
 
 from ..models import Student, StudentAlert
 from .serializers import StudentSerializer, StudentAlertSerializer
@@ -13,6 +14,10 @@ from course.api.serializers import ScheduleSerializer,DisciplineSerializer, Disc
 from datetime import date, datetime, timedelta
 from utils.generate_month_days import get_days_from_month
 import copy
+
+
+User = get_user_model()
+
 
 class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()
@@ -161,7 +166,7 @@ class StudentAlertViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         discipline = Discipline.objects.get(id=request.data['discipline_id'])
-        teacher = Teacher.objects.get(id=request.data['teacher_id'])
+        teacher = User.objects.get(id=request.data['teacher_id']) #Validar vínculo
         student = Student.objects.get(id=request.data['student_id'])
         reason = request.data['reason'] if 'reason' in request.data else None
         

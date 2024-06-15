@@ -13,7 +13,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['registration', 'name', 'email', 'department', 'avatar']
+        fields = ['id', 'registration', 'name', 'email', 'department', 'avatar']
     # Sempre que um usuário fizer login é pra pegar a senha dele atualizada, então precisa ficar dando update em tudo
 
 

@@ -1,8 +1,13 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from ..models import Course, Discipline, Class, Schedule, Teach, CourseDiscipline, TemporaryClass, ClassCanceled
 from datetime import datetime, timedelta, date
+
+from ..models import Course, Discipline, Class, Schedule, Teach, CourseDiscipline, TemporaryClass, ClassCanceled
 from teacher.api.serializers import TeacherSerializer
 from teacher.models import Teacher
+
+
+User = get_user_model()
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -36,7 +41,7 @@ class CourseDisciplinePeriodSerializer(serializers.ModelSerializer):
         serializer = CourseDisciplineSerializer(discipline)
 
         return serializer.data
-    
+
 
 class DisciplineSerializer(serializers.ModelSerializer):
     course = serializers.SerializerMethodField('show_course_period')
@@ -171,7 +176,7 @@ class DisciplineWithTeachSerializer(serializers.ModelSerializer):
         if instance:
             teach = Teach.objects.filter(
                 discipline_id=instance['id'], class_id=instance['class_id'])
-            teachers = Teacher.objects.filter(
+            teachers = User.objects.filter(
                 id__in=teach.values_list('teacher_id', flat=True))
 
             data = TeacherSerializer(teachers, many=True)
@@ -251,7 +256,7 @@ class TemporaryClassSerializer(serializers.ModelSerializer):
     
     def show_teacher(self, instance):
         try:
-            discipline = Teacher.objects.get(id=instance['teacher_id'].id)
+            discipline = User.objects.get(id=instance['teacher_id'].id)
 
             serializer = TeacherSerializer(discipline)
 
@@ -281,7 +286,7 @@ class ClassCanceledScheduleSerializer(serializers.ModelSerializer):
         return serializer.data
     
     def show_requested_by(self, instance):
-        teacher = Teacher.objects.get(id=self.context['teacher_id'])
+        teacher = User.objects.get(id=self.context['teacher_id'])
 
         serializer = TeacherSerializer(teacher)
 

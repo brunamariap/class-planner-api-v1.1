@@ -1,5 +1,9 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from course.models import Class, Discipline, Teacher
+
+
+User = get_user_model()
 
 
 class Student(models.Model):
@@ -28,6 +32,6 @@ class StudentAlert(models.Model):
     
     discipline_id = models.ForeignKey(Discipline, on_delete=models.CASCADE, db_column='discipline_id')
     student_id = models.ForeignKey(Student, on_delete=models.CASCADE, db_column='student_id')
-    teacher_id = models.ForeignKey(Teacher, on_delete=models.CASCADE, db_column='teacher_id')
+    teacher_id = models.ForeignKey(User, on_delete=models.CASCADE, db_column='teacher_id')
     created_at = models.DateTimeField(auto_now_add=True)
     reason = models.TextField(max_length=200, blank=True, null=True, default=None)
