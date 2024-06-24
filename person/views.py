@@ -85,24 +85,15 @@ class SuapAPIAuth(APIView):
         }
 
         if response is not False:
-            data = {
-                'name': response['nome_usual'],
-                'avatar': response['url_foto_75x100'],
-                'department': response['tipo_vinculo'],
-                'registration': response['matricula'],
-                'email': response['email'],
-                'success': True
-            }
-
             user, created = User.objects.get_or_create(
                 registration=response['matricula'])
 
-            if not created:
-                user.name = response['nome_usual']
-                user.email = response['email']
-                user.avatar = response['url_foto_75x100']
-                user.department = response['tipo_vinculo']
-            user.password = self.password
+            # if not created:
+            user.name = response['nome_usual']
+            user.email = response['email']
+            user.avatar = response['url_foto_75x100']
+            user.department = response['tipo_vinculo']
+            user.set_password(self.password)
             user.save()
 
             return user

@@ -16,6 +16,7 @@ from teacher.api.viewsets import TeacherViewSet, TeacherClassesViewSet, TeacherD
 
 from student.api.viewsets import StudentViewSet, StudentAlertViewSet
 from person.views import SuapAPIAuth
+from person.api.viewsets import PersonViewset
 
 router = routers.SimpleRouter()
 
@@ -27,6 +28,7 @@ router.register('students', StudentViewSet)
 router.register('alerts', StudentAlertViewSet)
 router.register('schedules', ScheduleViewSet)
 router.register('temporary-classes', TemporaryClassViewSet)
+router.register('users', PersonViewset)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

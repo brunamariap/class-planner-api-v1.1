@@ -10,9 +10,10 @@ from .serializers import UserSerializer
 User = get_user_model()
 
 
-class AuthorViewset(ReadOnlyModelViewSet):
+class PersonViewset(ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
 
     def get_queryset(self):
         User = get_user_model()
