@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticated
 
 from ..models import Course, Class, Discipline, CourseDiscipline, Schedule, TemporaryClass, ClassCanceled, Teach
 from .serializers import CourseSerializer, ClassSerializer, DisciplineSerializer, ScheduleSerializer, TemporaryClassSerializer, ClassCanceledSerializer, CourseDisciplinePeriodSerializer, DisciplineWithTeachSerializer
@@ -12,16 +13,23 @@ from student.api.serializers import StudentSerializer
 from utils.generate_month_days import get_days_from_month
 from utils.report_canceled_class import report_canceled_class
 
+from person.api.permissions import IsAdmin, IsTeacher
+
 from datetime import date, datetime, timedelta
-from django.db.models import Sum
 import math
 import copy
-from django.db import transaction
 
 
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method in ['POST', 'PATCH', 'PUT', 'DELETE']:
+            return [IsAuthenticated(), IsAdmin(), ]
+
+        return super().get_permissions()
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -39,7 +47,12 @@ class CourseViewSet(ModelViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(methods=['GET'], detail=False, url_path='(?P<course_id>[^/.]+)/classes')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='(?P<course_id>[^/.]+)/classes',
+        permission_classes=[IsAuthenticated]
+    )
     def get_classes_of_courses(self, request, course_id, *args, **kwargs):
         try:
             classes = Class.objects.filter(course_id=course_id)
@@ -49,7 +62,12 @@ class CourseViewSet(ModelViewSet):
         except:
             return Response({"message": "Ocorreu um erro ao tentar esta funcionalidade"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(methods=['GET'], detail=False, url_path='(?P<course_id>[^/.]+)/disciplines')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='(?P<course_id>[^/.]+)/disciplines',
+        permission_classes=[IsAuthenticated]
+    )
     def get_disciplines_of_courses(self, request, course_id, *args, **kwargs):
         try:
             disciplines = CourseDiscipline.objects.filter(course_id=course_id)
@@ -62,6 +80,8 @@ class CourseViewSet(ModelViewSet):
 
 
 class DeleteDisciplineLinkView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
     def destroy(self, request, *args, **kwargs):
         discipline_id = self.kwargs['discipline']
         course_id = self.kwargs['course']
@@ -88,6 +108,13 @@ class DeleteDisciplineLinkView(generics.DestroyAPIView):
 class DisciplineViewSet(ModelViewSet):
     queryset = Discipline.objects.all()
     serializer_class = DisciplineSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method in ['POST', 'PATCH', 'PUT', 'DELETE']:
+            return [IsAuthenticated(), IsAdmin(), ]
+
+        return super().get_permissions()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -156,6 +183,7 @@ class DisciplineViewSet(ModelViewSet):
 class ImportDisciplineGenericView(generics.CreateAPIView):
     queryset = Discipline.objects.all()
     serializer_class = DisciplineSerializer
+    permission_classes = [IsAuthenticated, IsAdmin]
 
     def create(self, request, *args, **kwargs):
         try:
@@ -231,6 +259,13 @@ class ImportDisciplineGenericView(generics.CreateAPIView):
 class ClassViewSet(ModelViewSet):
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method in ['POST', 'PATCH', 'PUT', 'DELETE']:
+            return [IsAdmin(), ]
+
+        return super().get_permissions()
 
     def create(self, request, *args, **kwargs):
         class_already_exists = Class.objects.filter(course_id=request.data['course_id'],
@@ -247,7 +282,12 @@ class ClassViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @action(methods=['GET'], detail=False, url_path='(?P<class_id>[^/.]+)/disciplines')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='(?P<class_id>[^/.]+)/disciplines',
+        permission_classes=[IsAuthenticated]
+    )
     def get_class_disciplines(self, request, class_id):
 
         student_class = Class.objects.get(id=class_id)
@@ -266,7 +306,12 @@ class ClassViewSet(ModelViewSet):
         serializer.is_valid()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=['GET'], detail=False, url_path='(?P<class_id>[^/.]+)/students')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='(?P<class_id>[^/.]+)/students',
+        permission_classes=[IsAuthenticated]
+    )
     def get_class_students(self, request, class_id):
         try:
             students = Student.objects.filter(class_id=class_id)
@@ -275,7 +320,12 @@ class ClassViewSet(ModelViewSet):
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @action(methods=['GET'], detail=False, url_path='(?P<class_id>[^/.]+)/schedules/week')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='(?P<class_id>[^/.]+)/schedules/week',
+        permission_classes=[IsAuthenticated]
+    )
     def get_week_schedules(self, request, class_id):
 
         schedules = Schedule.objects.filter(class_id=class_id)
@@ -300,7 +350,12 @@ class ClassViewSet(ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=['GET'], detail=False, url_path='(?P<class_id>[^/.]+)/schedules/month')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='(?P<class_id>[^/.]+)/schedules/month',
+        permission_classes=[IsAuthenticated]
+    )
     def get_month_schedules(self, request, class_id):
         schedules = Schedule.objects.filter(class_id=class_id)
 

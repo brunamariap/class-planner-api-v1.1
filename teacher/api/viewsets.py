@@ -30,11 +30,11 @@ class TeacherViewSet(ModelViewSet):
     queryset = User.objects.filter(department='Aluno')
 
     # Correto
-    # queryset = User.objects.filter(department='Aluno')
+    # queryset = User.objects.get_teachers()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
-    @action(methods=['post'], detail=False, url_path='disciplines', permission_classes=[IsAdmin])
+    @action(methods=['POST'], detail=False, url_path='disciplines', permission_classes=[IsAuthenticated, IsAdmin])
     def create_teacher_binding(self, request):
         class_id = request.data['class_id']
         teacher_id = request.data['teacher_id']
@@ -53,7 +53,12 @@ class TeacherViewSet(ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @action(methods=['GET'], detail=False, url_path='(?P<teacher_id>[^/.]+)/schedules/week')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='(?P<teacher_id>[^/.]+)/schedules/week',
+        permission_classes=[IsAuthenticated]
+    )
     def get_teacher_week_schedules(self, request, teacher_id):
         teach = Teach.objects.filter(teacher_id=teacher_id)
 
@@ -85,7 +90,12 @@ class TeacherViewSet(ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=['GET'], detail=False, url_path='(?P<teacher_id>[^/.]+)/schedules/month')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='(?P<teacher_id>[^/.]+)/schedules/month',
+        permission_classes=[IsAuthenticated]
+    )
     def get_teacher_month_schedules(self, request, teacher_id):
         teach = Teach.objects.filter(teacher_id=teacher_id)
 
@@ -118,7 +128,12 @@ class TeacherViewSet(ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=['GET'], detail=False, url_path='(?P<teacher_id>[^/.]+)/replace-classes')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='(?P<teacher_id>[^/.]+)/replace-classes',
+        permission_classes=[IsAuthenticated]
+    )
     def get_teacher_replace_classes(self, request, teacher_id):
         canceled_classes = ClassCanceled.objects.filter(
             teacher_to_replace=teacher_id)
@@ -128,7 +143,12 @@ class TeacherViewSet(ModelViewSet):
 
         return Response(replace_classes.data, status=status.HTTP_200_OK)
 
-    @action(methods=['GET'], detail=False, url_path='byregistration/(?P<teacher_registration>[^/.]+)')
+    @action(
+        methods=['GET'],
+        detail=False,
+        url_path='byregistration/(?P<teacher_registration>[^/.]+)',
+        permission_classes=[IsAuthenticated]
+    )
     def get_teacher_by_registration(self, request, teacher_registration):
         try:
             teacher = User.objects.get(registration=teacher_registration)
@@ -140,9 +160,9 @@ class TeacherViewSet(ModelViewSet):
 
 
 class TeacherDisciplinesViewSet(generics.ListAPIView):
-
     queryset = Discipline.objects.all()
     serializer_class = TeacherDisciplineSerializer
+    permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         try:
@@ -159,9 +179,9 @@ class TeacherDisciplinesViewSet(generics.ListAPIView):
 
 
 class TeacherClassesViewSet(generics.ListAPIView):
-
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         try:
