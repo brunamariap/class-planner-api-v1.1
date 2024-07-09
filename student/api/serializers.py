@@ -8,6 +8,34 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class CreateStudentSerializer(serializers.ModelSerializer):
+    disciplines = serializers.SlugRelatedField(
+        queryset=Discipline.objects.all(),
+        slug_field='code',
+        required=False,
+        many=True
+    )
+    student_class = serializers.SerializerMethodField('show_class')
+    password = serializers.CharField(max_length=128)
+
+    class Meta:
+        model = Student
+        fields = ['registration', 'password',
+                  'student_class', 'disciplines', 'user']
+
+    # Se tiver como exibir os campos 'name', 'registration', 'avatar', 'email', fora do objeto user
+
+    def show_class(self, instance):
+        try:
+            student_class = Class.objects.get(id=instance.class_id.id)
+            serializer = StudentClassSerializer(student_class)
+            data = serializer.data
+
+            return data
+        except:
+            return None
+
+
 class StudentSerializer(serializers.ModelSerializer):
     disciplines = serializers.SlugRelatedField(
         queryset=Discipline.objects.all(), slug_field='code', required=False, many=True)
@@ -15,7 +43,8 @@ class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        fields = ['id', 'class_id', 'name', 'registration', 'avatar', 'email','student_class', 'disciplines']
+        fields = ['id', 'class_id', 'name', 'registration',
+                  'avatar', 'email', 'student_class', 'disciplines']
 
     # Se tiver como exibir os campos 'name', 'registration', 'avatar', 'email', fora do objeto user
 

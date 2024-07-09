@@ -34,6 +34,9 @@ class IsAdmin(permissions.BasePermission):
 
 
 class IsStudent(permissions.BasePermission):
+    # def has_object_permission(self, request, view, obj):
+    #     return obj.student_id.user == request.user
+
     def has_permission(self, request, view):
         # Posso estar checando qualquer coisa
         # Acho que é aqui
