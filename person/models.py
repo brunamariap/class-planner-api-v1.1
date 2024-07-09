@@ -8,9 +8,13 @@ class PersonManager(BaseUserManager):
             raise ValueError("O campo registration é obrigatório")
         if not password:
             raise ValueError("O campo password é obrigatório")
-        user = self.model(registration=registration, **extra_fields)
+        user = self.model(
+            registration=registration, **extra_fields
+        )
         user.set_password(password)
+        user.username(registration)
         user.save(using=self._db)
+
         return user
 
     def get_students(self):
@@ -27,6 +31,7 @@ class Person(AbstractUser):
     class Meta:
         db_table = "person"
 
+    username = models.CharField(max_length=14)
     registration = models.CharField(max_length=14, unique=True)
     name = models.TextField(max_length=200)
     avatar = models.TextField(null=True)

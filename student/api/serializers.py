@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from course.api.serializers import DisciplineSerializer, TeacherSerializer, ClassSerializer, StudentClassSerializer
-from course.models import Discipline, CourseDiscipline, Teach, Teacher, Class
+from course.models import Discipline, CourseDiscipline, Teach, Class
 from ..models import Student, StudentAlert
 from django.contrib.auth import get_user_model
 
