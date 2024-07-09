@@ -2,7 +2,7 @@ import requests
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 User = get_user_model()
@@ -17,7 +17,7 @@ class SuapAPIAuth(APIView):
         self.password = self.request.data.get('password')
 
         data = self.authenticate(username, self.password)
-        
+
         if isinstance(data, User):
             refresh = RefreshToken.for_user(data)
             return Response({
@@ -93,6 +93,9 @@ class SuapAPIAuth(APIView):
             user.email = response['email']
             user.avatar = response['url_foto_75x100']
             user.department = response['tipo_vinculo']
+
+            # Estudante response['vinculo']['curso']
+
             user.set_password(self.password)
             user.save()
 
